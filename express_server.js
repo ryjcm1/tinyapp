@@ -36,8 +36,13 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);  // Log the POST request body to the console
-  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+  const longURL = req.body.longURL;
+  const shortURL = generateRandomString();
+  
+  urlDatabase[shortURL] = longURL
+
+  res.redirect("/urls")
+
 });
 
 
@@ -46,3 +51,21 @@ app.listen(PORT, () => {
 });
 
 
+const generateRandomString = () =>{
+  let resultString = ""
+  
+  for(let counter = 0; counter <= 5; counter++ ){
+    const isUpperCase = Math.random() > 0.5 ? true : false;
+    const letterCode = 65 + Math.floor(Math.random() * 25);
+    const letter = String.fromCharCode(letterCode);
+
+    if(isUpperCase){
+      resultString += letter
+    }else{
+      resultString += letter.toLowerCase()
+    }
+
+  }
+
+  return resultString;
+}
