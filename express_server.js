@@ -57,6 +57,14 @@ app.post("/urls/:shortURL/delete", (req,res) => {
   res.redirect("/urls");
 })
 
+app.post("/u/:shortURL/edit", (req,res) => {
+  urlKey = req.params.shortURL;
+  newURL = req.body.longURL;
+  urlDatabase[urlKey] = newURL;
+  
+  res.redirect("/urls")
+})
+
 
 
 app.listen(PORT, () => {
