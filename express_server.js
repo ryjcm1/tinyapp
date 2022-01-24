@@ -35,15 +35,28 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+app.get("/u/:shortURL", (req, res) => {
+  // const longURL = ...
+  res.redirect(urlDatabase[req.params.shortURL]);
+});
+
 app.post("/urls", (req, res) => {
   const longURL = req.body.longURL;
   const shortURL = generateRandomString();
   
   urlDatabase[shortURL] = longURL
 
-  res.redirect("/urls")
+  res.redirect(`/urls/${shortURL}`)
 
 });
+
+app.post("/urls/:shortURL/delete", (req,res) => {
+  const itemToDelete = req.params.shortURL;
+  delete urlDatabase[itemToDelete];
+
+  res.redirect("/urls");
+})
+
 
 
 app.listen(PORT, () => {
@@ -51,21 +64,36 @@ app.listen(PORT, () => {
 });
 
 
+// const generateRandomString = () =>{
+//   let resultString = ""
+  
+//   for(let counter = 0; counter <= 5; counter++ ){
+//     const isUpperCase = Math.random() > 0.5 ? true : false;
+//     const letterCode = 65 + Math.floor(Math.random() * 25);
+//     const letter = String.fromCharCode(letterCode);
+
+//     if(isUpperCase){
+//       resultString += letter
+//     }else{
+//       resultString += letter.toLowerCase()
+//     }
+
+//   }
+
+//   return resultString;
+// }
+
 const generateRandomString = () =>{
+  const alphaNumericalString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwyxz"
+
   let resultString = ""
   
   for(let counter = 0; counter <= 5; counter++ ){
-    const isUpperCase = Math.random() > 0.5 ? true : false;
-    const letterCode = 65 + Math.floor(Math.random() * 25);
-    const letter = String.fromCharCode(letterCode);
-
-    if(isUpperCase){
-      resultString += letter
-    }else{
-      resultString += letter.toLowerCase()
-    }
+    const letterCode = Math.floor(Math.random() * (alphaNumericalString.length - 1))
+    const letter = alphaNumericalString[letterCode]
+    resultString += letter;
 
   }
 
-  return resultString;
+  return resultString
 }
