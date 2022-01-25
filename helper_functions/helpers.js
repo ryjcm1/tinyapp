@@ -1,3 +1,19 @@
+const getUserByEmail = (email, database) => {
+  // lookup magic...
+  let dbKeys = Object.keys(database);
+
+  for(let dbKey of dbKeys){
+    let user = database[dbKey];
+
+    if(user.email === email){
+      return user;
+    }
+  }
+  
+  return false;
+  
+};
+
 
 const generateRandomString = (length) =>{
   const alphaNumericalString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwyxz"
@@ -14,4 +30,5 @@ const generateRandomString = (length) =>{
   return resultString
 }
 
-module.exports = { generateRandomString };
+
+module.exports = { getUserByEmail, generateRandomString };
