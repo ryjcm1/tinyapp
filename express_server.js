@@ -115,8 +115,7 @@ app.post("/login", (req, res) => {
     }
   }
 
-
-  res.send("ERROR 403 - Invalid Email or Password.")
+  res.status(403).send('Invalid Email or Password.');
   //check if valid user and email
 })
 
@@ -132,7 +131,8 @@ app.post("/register", (req, res) => {
   const password = req.body.password;
 
   if(email === "" || password === ""){
-    res.send("ERROR 400 - Email and Password can not be empty.")
+    
+    res.status(404).send('Email and Password can not be empty.');
   }
   
   const newUserObject = {
