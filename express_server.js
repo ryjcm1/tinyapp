@@ -3,6 +3,7 @@ const express = require("express");
 
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcryptjs');
 
 const { users } = require("./data/userDatabase");
 const { urlDatabase } = require("./data/urlDatabase");
@@ -135,7 +136,7 @@ app.post("/login", (req, res) => {
 
   for(let userKey of userKeys){
     const current = users[userKey]
-    if(email === current.email && password === current.password){
+    if(email === current.email && bcrypt.compareSync(password, current.password)){
       res.cookie("user_id", current.id);
       res.redirect("/urls");
       return;
@@ -156,6 +157,7 @@ app.post("/register", (req, res) => {
   const id = generateRandomString(9)
   const email = req.body.email;
   const password = req.body.password;
+  const hashedPassword = bcrypt.hashSync(password,10)
 
   if(email === "" || password === ""){
     
@@ -165,8 +167,10 @@ app.post("/register", (req, res) => {
   const newUserObject = {
     id,
     email,
-    password
+    password: hashedPassword
   }
+
+  console.log(newUserObject);
 
   users[id] = newUserObject;
   res.cookie("user_id", id)
