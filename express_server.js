@@ -1,6 +1,13 @@
+
 const express = require("express");
+
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
+
+const { users } = require("./data/userDatabase");
+const { urlDatabase } = require("./data/urlDatabase");
+const { generateRandomString } = require("./helper_functions/generateRandomString")
+
 const req = require("express/lib/request");
 const app = express();
 const PORT = 8080; // default port 8080
@@ -11,30 +18,6 @@ app.use(cookieParser())
 
 app.set("view engine", "ejs");
 
-
-const urlDatabase = {
-  b6UTxQ: {
-      longURL: "https://www.tsn.ca",
-      userID: "aJ48lW"
-  },
-  i3BoGr: {
-      longURL: "https://www.google.ca",
-      userID: "aJ48lW"
-  }
-};
-
-const users = { 
-  "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
-    password: "purple-monkey-dinosaur"
-  },
- "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
-    password: "dishwasher-funk"
-  }
-}
 
 app.get("/", (req, res) => {
   res.redirect("/urls")
@@ -69,14 +52,14 @@ app.get("/urls", (req,res) => {
 
 app.get("/urls/new", (req, res) => {
 
-  const cookieId = req.cookies["user_id"]
-
+  
   // console.log(cookieId);
-
-  if(cookieId === undefined){
+  
+  if(req.cookies["user_id"] === undefined){
     res.redirect('/login')
     return;
   }
+  const cookieId = req.cookies["user_id"]
 
   const templateVars = { user: users[cookieId] };
   res.render("urls_new", templateVars);
@@ -132,7 +115,7 @@ app.post("/urls", (req, res) => {
 app.post("/urls/:shortURL/delete", (req,res) => {
   const itemToDelete = req.params.shortURL;
   delete urlDatabase[itemToDelete];
-
+  
   res.redirect("/urls");
 })
 
@@ -166,7 +149,7 @@ app.post("/login", (req, res) => {
 app.post("/logout" , (req, res) => {
   res.clearCookie('user_id');
   // console.log(users)
-  res.redirect("/urls");
+  res.redirect("/login");
 })
 
 app.post("/register", (req, res) => {
@@ -196,18 +179,3 @@ app.listen(PORT, () => {
 });
 
 
-
-const generateRandomString = (length) =>{
-  const alphaNumericalString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwyxz"
-
-  let resultString = ""
-  
-  for(let counter = 1; counter <= length; counter++ ){
-    const letterCode = Math.floor(Math.random() * (alphaNumericalString.length - 1))
-    const letter = alphaNumericalString[letterCode]
-    resultString += letter;
-
-  }
-
-  return resultString
-}
