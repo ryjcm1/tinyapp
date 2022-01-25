@@ -40,6 +40,12 @@ app.get("/urls.json", (req, res) => {
 
 app.get("/urls", (req,res) => {
   const cookieId = req.cookies["user_id"]
+
+  if(cookieId === undefined){
+    res.redirect('/login')
+    return;
+  }
+
   const templateVars = {
     user: users[cookieId],
     urls: urlDatabase
@@ -48,7 +54,16 @@ app.get("/urls", (req,res) => {
 })
 
 app.get("/urls/new", (req, res) => {
+
   const cookieId = req.cookies["user_id"]
+
+  console.log(cookieId);
+
+  if(cookieId === undefined){
+    res.redirect('/login')
+    return;
+  }
+
   const templateVars = { user: users[cookieId] };
   res.render("urls_new", templateVars);
 });
