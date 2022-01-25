@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser');
+const req = require("express/lib/request");
 const app = express();
 const PORT = 8080; // default port 8080
 
@@ -15,6 +16,19 @@ const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
 
 app.get("/", (req, res) => {
   res.redirect("/urls")
@@ -47,9 +61,14 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(urlDatabase[req.params.shortURL]);
 });
 
+app.get("/register", (req, res) => {
+  const templateVars = { username: req.cookies["username"], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
+  res.render("user_register", templateVars)
+})
+
 app.post("/urls", (req, res) => {
   const longURL = req.body.longURL;
-  const shortURL = generateRandomString();
+  const shortURL = generateRandomString(6);
   
   urlDatabase[shortURL] = longURL
 
@@ -83,36 +102,34 @@ app.post("/logout" , (req, res) => {
   res.redirect("/urls");
 })
 
+app.post("/register", (req, res) => {
+  const id = generateRandomString(9)
+  const email = req.body.email;
+  const password = req.body.password
+  
+  const newUserObject = {
+    id,
+    email,
+    password
+  }
+
+  users[id] = newUserObject;
+
+  res.redirect("/urls")
+})
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
 
-// const generateRandomString = () =>{
-//   let resultString = ""
-  
-//   for(let counter = 0; counter <= 5; counter++ ){
-//     const isUpperCase = Math.random() > 0.5 ? true : false;
-//     const letterCode = 65 + Math.floor(Math.random() * 25);
-//     const letter = String.fromCharCode(letterCode);
 
-//     if(isUpperCase){
-//       resultString += letter
-//     }else{
-//       resultString += letter.toLowerCase()
-//     }
-
-//   }
-
-//   return resultString;
-// }
-
-const generateRandomString = () =>{
+const generateRandomString = (length) =>{
   const alphaNumericalString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwyxz"
 
   let resultString = ""
   
-  for(let counter = 0; counter <= 5; counter++ ){
+  for(let counter = 1; counter <= length; counter++ ){
     const letterCode = Math.floor(Math.random() * (alphaNumericalString.length - 1))
     const letter = alphaNumericalString[letterCode]
     resultString += letter;
