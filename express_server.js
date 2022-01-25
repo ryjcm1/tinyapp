@@ -3,6 +3,8 @@ const express = require("express");
 
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
+// const cookieSession = require('')
+
 const bcrypt = require('bcryptjs');
 
 const { users } = require("./data/userDatabase");
@@ -16,6 +18,11 @@ const PORT = 8080; // default port 8080
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser())
 
+// app.use(cookieSession({
+//   secret: "some string",
+//   cookie: {maxAge: 120000},
+
+// }))
 
 app.set("view engine", "ejs");
 
@@ -93,7 +100,8 @@ app.get("/register", (req, res) => {
 })
 
 app.get("/login", (req, res) => {
-  const templateVars = { user: req.cookies["user_id"], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
+  const cookieId = req.cookies["user_id"]
+  const templateVars = { user: users[cookieId], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
   res.render("user_login", templateVars)
 })
 
@@ -157,20 +165,18 @@ app.post("/register", (req, res) => {
   const id = generateRandomString(9)
   const email = req.body.email;
   const password = req.body.password;
-  const hashedPassword = bcrypt.hashSync(password,10)
-
+  
   if(email === "" || password === ""){
-    
     res.status(404).send('Email and Password can not be empty.');
   }
   
+  const hashedPassword = bcrypt.hashSync(password,10)
   const newUserObject = {
     id,
     email,
     password: hashedPassword
   }
-
-  console.log(newUserObject);
+  // console.log(newUserObject);
 
   users[id] = newUserObject;
   res.cookie("user_id", id)
