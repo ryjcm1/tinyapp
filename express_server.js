@@ -12,11 +12,6 @@ app.use(cookieParser())
 app.set("view engine", "ejs");
 
 
-// const urlDatabase = {
-//   "b2xVn2": "http://www.lighthouselabs.ca",
-//   "9sm5xK": "http://www.google.com"
-// };
-
 const urlDatabase = {
   b6UTxQ: {
       longURL: "https://www.tsn.ca",
@@ -45,9 +40,6 @@ app.get("/", (req, res) => {
   res.redirect("/urls")
 });
 
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
 
 app.get("/urls", (req,res) => {
   
@@ -90,8 +82,17 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
+
+//add to this
 app.get("/urls/:shortURL", (req, res) => {
   const cookieId = req.cookies["user_id"]
+  const urlObject = urlDatabase[req.params.shortURL];
+
+  if(urlObject.userID !== cookieId){
+    res.send("Not your link");
+    return;
+  }
+
   const templateVars = { user: users[cookieId], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL};
   res.render("urls_show", templateVars);
 });
