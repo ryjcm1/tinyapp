@@ -39,20 +39,23 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls", (req,res) => {
+  const cookieId = req.cookies["user_id"]
   const templateVars = {
-    user: req.cookies["user_id"],
+    user: users[cookieId],
     urls: urlDatabase
   };
   res.render("urls_index", templateVars);
 })
 
 app.get("/urls/new", (req, res) => {
-  const templateVars = { user: req.cookies["user_id"] };
+  const cookieId = req.cookies["user_id"]
+  const templateVars = { user: users[cookieId] };
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { user: req.cookies["user_id"], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
+  const cookieId = req.cookies["user_id"]
+  const templateVars = { user: users[cookieId], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
   res.render("urls_show", templateVars);
 });
 
@@ -62,8 +65,14 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  const templateVars = { user: req.cookies["user_id"], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
+  const cookieId = req.cookies["user_id"]
+  const templateVars = { user: users[cookieId], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
   res.render("user_register", templateVars)
+})
+
+app.get("/login", (req, res) => {
+  const templateVars = { user: req.cookies["user_id"], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
+  res.render("user_login", templateVars)
 })
 
 app.post("/urls", (req, res) => {
@@ -92,13 +101,28 @@ app.post("/u/:shortURL/edit", (req,res) => {
 })
 
 app.post("/login", (req, res) => {
-  const username = req.body.username;
-  res.cookie("username", username);
-  res.redirect("/urls");
+  const email = req.body.email;
+  const password = req.body.password;
+
+  let userKeys = Object.keys(users)
+
+  for(let userKey of userKeys){
+    const current = users[userKey]
+    if(email === current.email && password === current.password){
+      res.cookie("user_id", current.id);
+      res.redirect("/urls");
+      return;
+    }
+  }
+
+
+  res.send("ERROR 403 - Invalid Email or Password.")
+  //check if valid user and email
 })
 
 app.post("/logout" , (req, res) => {
   res.clearCookie('user_id');
+  console.log(users)
   res.redirect("/urls");
 })
 
@@ -118,7 +142,7 @@ app.post("/register", (req, res) => {
   }
 
   users[id] = newUserObject;
-  res.cookie("user_id", newUserObject)
+  res.cookie("user_id", id)
 
   res.redirect("/urls")
 })
