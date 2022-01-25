@@ -105,7 +105,11 @@ app.post("/logout" , (req, res) => {
 app.post("/register", (req, res) => {
   const id = generateRandomString(9)
   const email = req.body.email;
-  const password = req.body.password
+  const password = req.body.password;
+
+  if(email === "" || password === ""){
+    res.send("ERROR 400 - Email and Password can not be empty.")
+  }
   
   const newUserObject = {
     id,
