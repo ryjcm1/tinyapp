@@ -141,19 +141,21 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
 
-  let userKeys = Object.keys(users)
+  const userInfo = getUserByEmail(email, users);
 
-  for(let userKey of userKeys){
-    const current = users[userKey]
-    if(email === current.email && bcrypt.compareSync(password, current.password)){
-      req.session.user_id = current.id;
-      res.redirect("/urls");
-      return;
-    }
+  if(!userInfo){
+    res.status(403).send('Invalid Email.');
+    return;
   }
 
-  res.status(403).send('Invalid Email or Password.');
-  //check if valid user and email
+  if(! bcrypt.compareSync(password, userInfo.password)){
+    res.status(403).send('Invalid Password.');
+    return;
+  }
+
+  req.session.user_id = userInfo.id;
+  res.redirect("/urls");
+
 })
 
 app.post("/logout" , (req, res) => {

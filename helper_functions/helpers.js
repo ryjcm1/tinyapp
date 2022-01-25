@@ -1,5 +1,10 @@
 const getUserByEmail = (email, database) => {
   // lookup magic...
+
+  if(email.length <= 0){
+    return undefined;
+  }
+
   let dbKeys = Object.keys(database);
 
   for(let dbKey of dbKeys){
@@ -10,7 +15,7 @@ const getUserByEmail = (email, database) => {
     }
   }
   
-  return false;
+  return undefined;
   
 };
 
