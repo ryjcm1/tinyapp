@@ -33,7 +33,8 @@
               <button class="btn btn-outline-primary">Edit</button>
             </form>
             </td>
-            <td><form method="POST" action="/urls/<%= url %>/delete">
+            <td><form method="POST" action="/urls/<%= url %>/delete?_method=DELETE">
+              <input type="hidden" name="_method" value="DELETE">
               <button class="btn btn-outline-danger">Delete</button>
             </form>
             </td>

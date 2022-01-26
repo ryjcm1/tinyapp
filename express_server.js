@@ -105,7 +105,7 @@ app.get("/u/:shortURL", (req, res) => {
 
   //creates guestId if not logged in already 
   if(!req.session.user_id && !req.session.guestUser){
-    req.session["guestUser"] = generateRandomString(5)
+    req.session["guestUser"] = generateRandomString(9)
   }
 
   //display current user whether they are logged in or now
@@ -113,7 +113,7 @@ app.get("/u/:shortURL", (req, res) => {
 
   //add to unique list if unique user
   if(!urlDatabase[userInput].accessedBy.includes(currentUser)){
-    urlDatabase[userInput].accessedBy.push(currentUser)
+    urlDatabase[userInput].accessedBy.push(currentUser);
   }
 
   //add to access log
@@ -177,14 +177,14 @@ app.post("/urls", (req, res) => {
   };
   
   urlDatabase[id] = newUrlObject;
-  console.log(newUrlObject)
+  // console.log(newUrlObject)
 
   res.redirect(`/urls/${id}`);
 
 });
 
 
-app.post("/urls/:shortURL/delete", (req,res) => {
+app.delete("/urls/:shortURL/delete", (req,res) => {
   const itemToDelete = req.params.shortURL;
   delete urlDatabase[itemToDelete];
   
@@ -192,7 +192,7 @@ app.post("/urls/:shortURL/delete", (req,res) => {
 });
 
 
-app.post("/u/:shortURL/edit", (req,res) => {
+app.put("/u/:shortURL/edit", (req,res) => {
   const newURL = req.body.longURL;
   if (newURL.length < 1) {
     res.status(403).send('URL cannot be empty.');
