@@ -3,11 +3,9 @@ const express = require("express");
 
 const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session')
-
 const bcrypt = require('bcryptjs');
 
-const { users } = require("./data/userDatabase");
-const { urlDatabase } = require("./data/urlDatabase");
+const { userDatabase, urlDatabase} = require("./data/database")
 const { getUserByEmail, generateRandomString } = require("./helper_functions/helpers")
 
 const req = require("express/lib/request");
@@ -51,7 +49,7 @@ app.get("/urls", (req,res) => {
   // console.log(specificUrls);
 
   const templateVars = {
-    user: users[sessionID],
+    user: userDatabase[sessionID],
     urls: specificUrls
   };
   res.render("urls_index", templateVars);
@@ -68,7 +66,7 @@ app.get("/urls/new", (req, res) => {
   }
   const sessionID = req.session.user_id;
 
-  const templateVars = { user: users[sessionID] };
+  const templateVars = { user: userDatabase[sessionID] };
   res.render("urls_new", templateVars);
 });
 
@@ -83,7 +81,7 @@ app.get("/urls/:shortURL", (req, res) => {
     return;
   }
 
-  const templateVars = { user: users[sessionID], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL};
+  const templateVars = { user: userDatabase[sessionID], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL};
   res.render("urls_show", templateVars);
 });
 
@@ -94,13 +92,13 @@ app.get("/u/:shortURL", (req, res) => {
 
 app.get("/register", (req, res) => {
   const sessionID = req.session["user_id"]
-  const templateVars = { user: users[sessionID], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
+  const templateVars = { user: userDatabase[sessionID], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
   res.render("user_register", templateVars)
 })
 
 app.get("/login", (req, res) => {
   const sessionID = req.session["user_id"]
-  const templateVars = { user: users[sessionID], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
+  const templateVars = { user: userDatabase[sessionID], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
   res.render("user_login", templateVars)
 })
 
@@ -139,7 +137,7 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
 
-  const userInfo = getUserByEmail(email, users);
+  const userInfo = getUserByEmail(email, userDatabase);
 
   if(!userInfo){
     res.status(403).send('Invalid Email.');
@@ -158,7 +156,7 @@ app.post("/login", (req, res) => {
 
 app.post("/logout" , (req, res) => {
   res.clearCookie('user_id');
-  // console.log(users)
+  // console.log(userDatabase)
   req.session = null;
   res.redirect("/login");
 })
@@ -181,7 +179,7 @@ app.post("/register", (req, res) => {
     password: hashedPassword
   }
   
-  users[id] = newUserObject;
+  userDatabase[id] = newUserObject;
   req.session.user_id = id;
 
   res.redirect("/urls")
