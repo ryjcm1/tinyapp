@@ -4,8 +4,8 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Final Product
 
-<img src="./docs/tinyapp1.gif" alt="tinyapp-gif-1" width="400" style="margin: 1rem"/>
-<img src="./docs/tinyapp2.gif" alt="tinyapp-gif-2" width="400" style="margin: 1rem"/>
+<img src="./docs/tinyapp1.gif" alt="tinyapp-gif-1" width="550" style="margin: 1rem"/>
+<img src="./docs/tinyapp2.gif" alt="tinyapp-gif-2" width="550" style="margin: 1rem"/>
 
 
 ## Features
