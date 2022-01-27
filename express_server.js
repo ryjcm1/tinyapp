@@ -277,7 +277,7 @@ app.post("/register", (req, res) => {
 
 
 //delete URL
-app.delete("/urls/:shortURL/delete", (req,res) => {
+app.delete("/urls/:shortURL", (req,res) => {
   const itemToDelete = req.params.shortURL;
   delete urlDatabase[itemToDelete];
   
@@ -286,7 +286,7 @@ app.delete("/urls/:shortURL/delete", (req,res) => {
 
 
 //edit longURL
-app.put("/u/:shortURL/edit", (req,res) => {
+app.put("/u/:shortURL", (req,res) => {
   const newURL = req.body.longURL;
   if (newURL.length < 1) {
     const errorTemplate = {
