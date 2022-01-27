@@ -34,7 +34,7 @@ app.set("view engine", "ejs");
       GET
 -------------*/
 
-
+//redirects dependent on user login status
 app.get("/", (req, res) => {
   if (req.session.user_id === undefined) {
     res.redirect("/login");
@@ -45,11 +45,13 @@ app.get("/", (req, res) => {
 });
 
 
+//display all url data
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
 
+//displays urls linked to the specificied userID when logged in
 app.get("/urls", (req,res) => {
   
   if (req.session.user_id === undefined) {
@@ -71,6 +73,7 @@ app.get("/urls", (req,res) => {
 });
 
 
+//navigates to url creation page when user is logged in
 app.get("/urls/new", (req, res) => {
   
   if (req.session.user_id === undefined) {
@@ -163,12 +166,13 @@ app.get("*", (req, res) => {
   return res.status(404).render("error", errorTemplate)
 })
 
+
 /*-------------
       POST
 -------------*/
 
 
-//displays urls linked to the specificied userID when logged in
+//creates new short url
 app.post("/urls", (req, res) => {
   const longURL = req.body.longURL;
   const id = generateRandomString(6);
