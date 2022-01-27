@@ -8,6 +8,7 @@ const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session');
 const methodOverride = require('method-override')
 const bcrypt = require('bcryptjs');
+const path = require('path')
 const { userDatabase, urlDatabase} = require("./data/database");
 const { getUserByEmail, generateRandomString, getItemsMatchingID } = require("./helper_functions/helpers");
 
@@ -23,6 +24,8 @@ app.use(cookieSession({
 
 }));
 app.use(methodOverride('_method'))
+app.use( express.static(path.join(__dirname, 'public')))
+
 
 app.set("view engine", "ejs");
 
@@ -45,8 +48,11 @@ app.get("/", (req, res) => {
 app.get("/urls", (req,res) => {
   
   if (req.session.user_id === undefined) {
-    res.status(403).send('Login or Register first');
-    return;
+    const errorTemplate = {
+      code: 403,
+      message: "Access denied, insufficient permissions."
+    }
+    return res.status(403).render("error", errorTemplate);
   }
   
   const sessionID = req.session.user_id;
@@ -78,8 +84,11 @@ app.get("/urls/:shortURL", (req, res) => {
   const urlObject = urlDatabase[req.params.shortURL];
 
   if (urlObject.userID !== sessionID) {
-    res.status(403).send("Insufficient permission.")
-    return;
+    const errorTemplate = {
+      code: 403,
+      message: "Access denied, insufficient permissions."
+    }
+    return res.status(403).render("error", errorTemplate);
   }
 
   const currentURL = req.params.shortURL;
@@ -167,19 +176,30 @@ app.post("/login", (req, res) => {
   const password = req.body.password;
   
   if (email === "" || password === "") {
-    res.status(404).send('Email and Password can not be empty.');
+    const errorTemplate = {
+      code: 403,
+      message: "Email and Password can not be empty."
+    }
+    return res.status(403).render("error", errorTemplate);
+
   }
   
   const userInfo = getUserByEmail(email, userDatabase);
   
   if (!userInfo) {
-    res.status(403).send('Invalid Email.');
-    return;
+    const errorTemplate = {
+      code: 403,
+      message: "Invalid email."
+    }
+    return res.status(403).render("error", errorTemplate);
   }
   
   if (!bcrypt.compareSync(password, userInfo.password)) {
-    res.status(403).send('Invalid Password.');
-    return;
+    const errorTemplate = {
+      code: 403,
+      message: "Invalid password."
+    }
+    return res.status(403).render("error", errorTemplate);
   }
   
   req.session.user_id = userInfo.id;
@@ -199,11 +219,19 @@ app.post("/register", (req, res) => {
   const password = req.body.password;
   
   if (email === "" || password === "") {
-    return res.status(404).send('Email and Password can not be empty.');
+    const errorTemplate = {
+      code: 403,
+      message: "Email and password cannot be empty."
+    }
+    return res.status(403).render("error", errorTemplate);
   }
 
   if(getUserByEmail(email, userDatabase)){
-    return res.status(400).send("This email is already in use.")
+    const errorTemplate = {
+      code: 403,
+      message: "This email is already in use."
+    }
+    return res.status(403).render("error", errorTemplate);
   }
 
   const id = generateRandomString(9);
@@ -239,8 +267,11 @@ app.delete("/urls/:shortURL/delete", (req,res) => {
 app.put("/u/:shortURL/edit", (req,res) => {
   const newURL = req.body.longURL;
   if (newURL.length < 1) {
-    res.status(403).send('URL cannot be empty.');
-    return;
+    const errorTemplate = {
+      code: 403,
+      message: "This URL cannot be empty."
+    }
+    return res.status(403).render("error", errorTemplate);
   }
 
   const urlKey = req.params.shortURL;
