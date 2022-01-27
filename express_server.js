@@ -10,7 +10,7 @@ const methodOverride = require('method-override')
 const bcrypt = require('bcryptjs');
 
 const { userDatabase, urlDatabase} = require("./data/database");
-const { getUserByEmail, generateRandomString } = require("./helper_functions/helpers");
+const { getUserByEmail, generateRandomString, getItemsMatchingID } = require("./helper_functions/helpers");
 
 const app = express();
 const PORT = 8080; // default port 8080
@@ -51,14 +51,7 @@ app.get("/urls", (req,res) => {
   }
   
   const sessionID = req.session.user_id;
-  const specificUrls = {};
-  const urlKeys = Object.keys(urlDatabase);
-
-  for (let urlKey of urlKeys) {
-    if (urlDatabase[urlKey].userID === sessionID) {
-      specificUrls[urlKey] = urlDatabase[urlKey];
-    }
-  }
+  const specificUrls = getItemsMatchingID(sessionID, urlDatabase);
 
   const templateVars = {
     user: userDatabase[sessionID],
@@ -122,10 +115,6 @@ app.get("/u/:shortURL", (req, res) => {
     time: new Date().toLocaleString("en-US", { timeZone: "America/New_York"})
   }
   urlDatabase[userInput].accessLog.push(accesslogEntry);
-
-  // console.log(currentUser);
-  console.log(urlDatabase[userInput])
-
 
   res.redirect(urlDatabase[userInput].longURL);
 });

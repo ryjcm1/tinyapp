@@ -36,4 +36,19 @@ const generateRandomString = (length) =>{
 };
 
 
-module.exports = { getUserByEmail, generateRandomString };
+const getItemsMatchingID = (id, database) => {
+  const userSpecificUrls = {};
+
+  const objectKeys = Object.keys(database);
+
+  for( let objectKey of objectKeys){
+    if(database[objectKey].userID === id){
+      userSpecificUrls[objectKey] = database[objectKey];
+    }
+  }
+
+  return userSpecificUrls;
+}
+
+
+module.exports = { getUserByEmail, generateRandomString, getItemsMatchingID};
