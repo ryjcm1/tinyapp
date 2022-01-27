@@ -1,6 +1,6 @@
-const getUserByEmail = (email, database) => {
-  // lookup magic...
 
+//takes in a list of objects and returns the first object that has matching email propety as the email value passed in
+const getUserByEmail = (email, database) => {
   if (email.length <= 0) {
     return undefined;
   }
@@ -20,6 +20,7 @@ const getUserByEmail = (email, database) => {
 };
 
 
+//creates random string at n-length
 const generateRandomString = (length) =>{
   const alphaNumericalString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwyxz";
 
@@ -36,9 +37,9 @@ const generateRandomString = (length) =>{
 };
 
 
+//Takes in a list of objects and returns new list of object that have the same userID property value
 const getItemsMatchingID = (id, database) => {
   const userSpecificUrls = {};
-
   const objectKeys = Object.keys(database);
 
   for( let objectKey of objectKeys){

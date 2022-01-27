@@ -8,7 +8,6 @@ const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session');
 const methodOverride = require('method-override')
 const bcrypt = require('bcryptjs');
-
 const { userDatabase, urlDatabase} = require("./data/database");
 const { getUserByEmail, generateRandomString, getItemsMatchingID } = require("./helper_functions/helpers");
 
@@ -101,15 +100,15 @@ app.get("/u/:shortURL", (req, res) => {
     req.session["guestUser"] = generateRandomString(9)
   }
 
-  //display current user whether they are logged in or now
+  //display current user whether they are logged in or not
   const currentUser = req.session.user_id || req.session.guestUser;
 
-  //add to unique list if unique user
+  //adds in current user id if it is unique
   if(!urlDatabase[userInput].accessedBy.includes(currentUser)){
     urlDatabase[userInput].accessedBy.push(currentUser);
   }
 
-  //add to access log
+  //adds to access log
   const accesslogEntry = {
     id: currentUser,
     time: new Date().toLocaleString("en-US", { timeZone: "America/New_York"})
@@ -129,15 +128,7 @@ app.get("/register", (req, res) => {
 
 app.get("/login", (req, res) => {
   const sessionID = req.session["user_id"];
-  //need to keep track of guestUser
-  // if(!sessionID && !req.session.guestUser){
-  //   req.session["guestUser"] = generateRandomString(3)
-  // }
-
   const templateVars = { user: userDatabase[sessionID], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
-
-
-  // console.log(req.session.guestUser)
 
   res.render("user_login", templateVars);
 });
@@ -154,8 +145,8 @@ app.post("/urls", (req, res) => {
   const id = generateRandomString(6);
   const userID = req.session["user_id"];
   const created = new Date().toLocaleString("en-US", { timeZone: "America/New_York"});
-  const accessLog = [];
-  const accessedBy = [];
+  const accessLog = []; //will be populated with strings
+  const accessedBy = []; //will be populated with objects
 
   const newUrlObject = {
     longURL,
@@ -166,13 +157,13 @@ app.post("/urls", (req, res) => {
   };
   
   urlDatabase[id] = newUrlObject;
-  // console.log(newUrlObject)
 
   res.redirect(`/urls/${id}`);
 
 });
 
 
+//method-Override
 app.delete("/urls/:shortURL/delete", (req,res) => {
   const itemToDelete = req.params.shortURL;
   delete urlDatabase[itemToDelete];
@@ -181,6 +172,7 @@ app.delete("/urls/:shortURL/delete", (req,res) => {
 });
 
 
+//method-Override
 app.put("/u/:shortURL/edit", (req,res) => {
   const newURL = req.body.longURL;
   if (newURL.length < 1) {
@@ -206,7 +198,7 @@ app.post("/login", (req, res) => {
     return;
   }
 
-  if (! bcrypt.compareSync(password, userInfo.password)) {
+  if (!bcrypt.compareSync(password, userInfo.password)) {
     res.status(403).send('Invalid Password.');
     return;
   }
@@ -218,8 +210,6 @@ app.post("/login", (req, res) => {
 
 
 app.post("/logout" , (req, res) => {
-  res.clearCookie('user_id');
-  // console.log(userDatabase)
   req.session = null;
   res.redirect("/login");
 });
