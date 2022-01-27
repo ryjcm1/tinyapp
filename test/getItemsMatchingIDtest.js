@@ -40,4 +40,12 @@ describe("getItemsMatchingID function", () => {
 
     assert.isEmpty(getItemsMatchingID(id, randomList))
   })
+
+  it("should return an empty list when entered database is empty", () => {
+
+    const id = "adadad";
+    const db = {};
+
+    assert.isEmpty(getItemsMatchingID(id, db))
+  })
 })
