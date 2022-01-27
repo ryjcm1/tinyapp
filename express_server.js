@@ -143,6 +143,16 @@ app.get("/login", (req, res) => {
 });
 
 
+//the catch all route
+app.get("*", (req, res) => {
+  const errorTemplate = {
+    code: 404,
+    message: "You must be lost..."
+  }
+
+  return res.status(404).render("error", errorTemplate)
+})
+
 /*-------------
       POST
 -------------*/
