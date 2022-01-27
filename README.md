@@ -33,5 +33,5 @@ npm install
 
 - Run the development web server 
 ```
-npm run start
+npm run dev
 ```
