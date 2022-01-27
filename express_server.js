@@ -134,7 +134,6 @@ app.get("/login", (req, res) => {
 });
 
 
-
 /*-------------
       POST
 -------------*/
@@ -163,6 +162,70 @@ app.post("/urls", (req, res) => {
 });
 
 
+app.post("/login", (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  
+  if (email === "" || password === "") {
+    res.status(404).send('Email and Password can not be empty.');
+  }
+  
+  const userInfo = getUserByEmail(email, userDatabase);
+  
+  if (!userInfo) {
+    res.status(403).send('Invalid Email.');
+    return;
+  }
+  
+  if (!bcrypt.compareSync(password, userInfo.password)) {
+    res.status(403).send('Invalid Password.');
+    return;
+  }
+  
+  req.session.user_id = userInfo.id;
+  res.redirect("/urls");
+  
+});
+
+
+app.post("/logout" , (req, res) => {
+  req.session = null;
+  res.redirect("/login");
+});
+
+
+app.post("/register", (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  
+  if (email === "" || password === "") {
+    return res.status(404).send('Email and Password can not be empty.');
+  }
+
+  if(getUserByEmail(email, userDatabase)){
+    return res.status(400).send("This email is already in use.")
+  }
+
+  const id = generateRandomString(9);
+  const hashedPassword = bcrypt.hashSync(password,10);
+  const newUserObject = {
+    id,
+    email,
+    password: hashedPassword
+  };
+  
+  userDatabase[id] = newUserObject;
+  req.session.user_id = id;
+  
+  res.redirect("/urls");
+});
+
+
+/*------------------------------
+  Method Override DELETE & PUT
+------------------------------*/
+
+
 //method-Override
 app.delete("/urls/:shortURL/delete", (req,res) => {
   const itemToDelete = req.params.shortURL;
@@ -182,59 +245,6 @@ app.put("/u/:shortURL/edit", (req,res) => {
 
   const urlKey = req.params.shortURL;
   urlDatabase[urlKey].longURL = newURL;
-
-  res.redirect("/urls");
-});
-
-
-app.post("/login", (req, res) => {
-  const email = req.body.email;
-  const password = req.body.password;
-
-  const userInfo = getUserByEmail(email, userDatabase);
-
-  if (!userInfo) {
-    res.status(403).send('Invalid Email.');
-    return;
-  }
-
-  if (!bcrypt.compareSync(password, userInfo.password)) {
-    res.status(403).send('Invalid Password.');
-    return;
-  }
-
-  req.session.user_id = userInfo.id;
-  res.redirect("/urls");
-
-});
-
-
-app.post("/logout" , (req, res) => {
-  req.session = null;
-  res.redirect("/login");
-});
-
-
-app.post("/register", (req, res) => {
-  const id = generateRandomString(9);
-  const email = req.body.email;
-  const password = req.body.password;
-  
-  
-  
-  if (email === "" || password === "") {
-    res.status(404).send('Email and Password can not be empty.');
-  }
-  
-  const hashedPassword = bcrypt.hashSync(password,10);
-  const newUserObject = {
-    id,
-    email,
-    password: hashedPassword
-  };
-  
-  userDatabase[id] = newUserObject;
-  req.session.user_id = id;
 
   res.redirect("/urls");
 });
