@@ -45,6 +45,11 @@ app.get("/", (req, res) => {
 });
 
 
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
+});
+
+
 app.get("/urls", (req,res) => {
   
   if (req.session.user_id === undefined) {
@@ -79,6 +84,7 @@ app.get("/urls/new", (req, res) => {
 });
 
 
+//edit page only avaliable to tinyapp URL owner
 app.get("/urls/:shortURL", (req, res) => {
   const sessionID = req.session["user_id"];
   const urlObject = urlDatabase[req.params.shortURL];
@@ -86,7 +92,7 @@ app.get("/urls/:shortURL", (req, res) => {
   if (urlObject.userID !== sessionID) {
     const errorTemplate = {
       code: 403,
-      message: "Access denied, insufficient permissions."
+      message: "Access denied."
     }
     return res.status(403).render("error", errorTemplate);
   }
@@ -97,11 +103,15 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 
+//redirects and tracks ids
 app.get("/u/:shortURL", (req, res) => {
   const userInput = req.params.shortURL;
   if(urlDatabase[userInput] === undefined){
-    res.status(400).send("Invalid short URL.")
-    return;
+    const errorTemplate = {
+      code: 404,
+      message: "ShortURL not found."
+    }
+    return res.status(404).render("error", errorTemplate);
   }
 
   //creates guestId if not logged in already 
@@ -143,7 +153,7 @@ app.get("/login", (req, res) => {
 });
 
 
-//the catch all route
+//the catch all route 404
 app.get("*", (req, res) => {
   const errorTemplate = {
     code: 404,
@@ -158,6 +168,7 @@ app.get("*", (req, res) => {
 -------------*/
 
 
+//displays urls linked to the specificied userID when logged in
 app.post("/urls", (req, res) => {
   const longURL = req.body.longURL;
   const id = generateRandomString(6);
@@ -187,10 +198,10 @@ app.post("/login", (req, res) => {
   
   if (email === "" || password === "") {
     const errorTemplate = {
-      code: 403,
+      code: 401,
       message: "Email and Password can not be empty."
     }
-    return res.status(403).render("error", errorTemplate);
+    return res.status(401).render("error", errorTemplate);
 
   }
   
@@ -198,18 +209,18 @@ app.post("/login", (req, res) => {
   
   if (!userInfo) {
     const errorTemplate = {
-      code: 403,
+      code: 401,
       message: "Invalid email."
     }
-    return res.status(403).render("error", errorTemplate);
+    return res.status(401).render("error", errorTemplate);
   }
   
   if (!bcrypt.compareSync(password, userInfo.password)) {
     const errorTemplate = {
-      code: 403,
+      code: 401,
       message: "Invalid password."
     }
-    return res.status(403).render("error", errorTemplate);
+    return res.status(401).render("error", errorTemplate);
   }
   
   req.session.user_id = userInfo.id;
@@ -220,20 +231,21 @@ app.post("/login", (req, res) => {
 
 app.post("/logout" , (req, res) => {
   req.session = null;
-  res.redirect("/login");
+  res.redirect("/urls");
 });
 
 
+//registers unique emails and encrypts password
 app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   
   if (email === "" || password === "") {
     const errorTemplate = {
-      code: 403,
+      code: 401,
       message: "Email and password cannot be empty."
     }
-    return res.status(403).render("error", errorTemplate);
+    return res.status(401).render("error", errorTemplate);
   }
 
   if(getUserByEmail(email, userDatabase)){
@@ -264,7 +276,7 @@ app.post("/register", (req, res) => {
 ------------------------------*/
 
 
-//method-Override
+//delete URL
 app.delete("/urls/:shortURL/delete", (req,res) => {
   const itemToDelete = req.params.shortURL;
   delete urlDatabase[itemToDelete];
@@ -273,7 +285,7 @@ app.delete("/urls/:shortURL/delete", (req,res) => {
 });
 
 
-//method-Override
+//edit longURL
 app.put("/u/:shortURL/edit", (req,res) => {
   const newURL = req.body.longURL;
   if (newURL.length < 1) {
