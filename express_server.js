@@ -16,12 +16,11 @@ const app = express();
 const PORT = 8080; // default port 8080
 
 
+
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
   secret: generateRandomString(6),
   maxAge: 60000*60*24, //24hrs
-  saveUninitialized: false
-
 }));
 app.use(methodOverride('_method'))
 app.use( express.static(path.join(__dirname, 'public')))
@@ -30,9 +29,12 @@ app.use( express.static(path.join(__dirname, 'public')))
 app.set("view engine", "ejs");
 
 
+
 /*-------------
       GET
 -------------*/
+
+
 
 //redirects dependent on user login status
 app.get("/", (req, res) => {
@@ -167,9 +169,11 @@ app.get("*", (req, res) => {
 })
 
 
+
 /*-------------
       POST
 -------------*/
+
 
 
 //creates new short url
@@ -275,13 +279,15 @@ app.post("/register", (req, res) => {
 });
 
 
+
 /*------------------------------
   Method Override DELETE & PUT
 ------------------------------*/
 
 
+
 //delete URL
-app.delete("/urls/:shortURL", (req,res) => {
+app.delete("/urls/:shortURL/delete", (req,res) => {
   const itemToDelete = req.params.shortURL;
   delete urlDatabase[itemToDelete];
   
@@ -290,7 +296,7 @@ app.delete("/urls/:shortURL", (req,res) => {
 
 
 //edit longURL
-app.put("/u/:shortURL", (req,res) => {
+app.put("/u/:shortURL/edit", (req,res) => {
   const newURL = req.body.longURL;
   if (newURL.length < 1) {
     const errorTemplate = {
